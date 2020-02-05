@@ -1,0 +1,48 @@
+	lda 	A
+	cma# 	$000
+	jgt 	start
+	nega
+	sta 	A
+	lda 	ifNeg
+	ada# 	$001
+	sta 	ifNeg
+	
+
+start:	lda 	B
+	cma# 	$000
+	jgt 	start
+	nega
+	sta 	B
+	lda 	ifNeg
+	ada# 	$001
+	sta 	ifNeg
+	lda 	count
+
+loop:	cma 	B
+	jeq 	negLoop
+	lda 	answer
+	ada 	A
+	sta 	answer
+	lda 	count
+	ada# 	$001
+	sta 	count
+	jmp 	loop
+
+negLoop:	lda 	ifNeg
+	cma# 	$000
+	jeq 	end
+	dec 	ifNeg
+	LDA 	answer
+	NEGA
+	STA 	answer
+	JMP 	negLoop
+
+end:	hlt
+
+	.EQU @,$100
+A:	.word 5
+B:	.word -2
+answer:	.word 0
+count:	.word 0
+ifNeg:	.word 0	
+	.end

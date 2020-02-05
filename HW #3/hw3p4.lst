@@ -1,0 +1,54 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ	@, $000
+  2.  000 010000  	ldx#	0
+  3.  001 002101  	lda	arraySize
+  4.  002 042109  	sta	right
+  5.  003 002109  loop:	lda	right
+  6.  004 202107  	cma	left
+  7.  005 4A201C  	jlt	end
+  8.  006 102107  	ada	left
+  9.  007 190002  	div#	2
+ 10.  008 042108  if:	sta	middle
+ 11.  009 012108  	ldx	middle
+ 12.  00A 000000  	lda#	0
+ 13.  00B 004102  	lda+	sorted
+ 14.  00C 202100  	cma	target
+ 15.  00D 48201A  	jeq	found
+ 16.  00E 002100  	lda	target
+ 17.  00F 204102  	cma+	sorted
+ 18.  010 4C2012  	jle	elseIf
+ 19.  011 4B2016  	jge	else
+ 20.  012 002108  elseIf:	lda	middle
+ 21.  013 140001  	sba#	1	
+ 22.  014 042109  	sta	right
+ 23.  015 402003  	jmp	loop
+ 24.  016 002108  else:	lda	middle
+ 25.  017 100001  	ada#	1
+ 26.  018 042107  	sta	left
+ 27.  019 402003  	jmp	loop
+ 28.              		
+ 29.  01A 000001  found:	lda#	1
+ 30.  01B FFFFFF  	hlt
+ 31.              
+ 32.  01C 000000  end:	lda#	0
+ 33.  01D FFFFFF  	hlt
+ 34.              	.end
+ 35.              
+ 36.              	.equ	@, $100
+ 37.  100 000005  target:	.word 5
+ 38.  101 000005  arraySize:	.word	5	
+ 39.  102 000001  sorted:	.word 1
+ 40.  103 000002  	.word	2
+ 41.  104 000003  	.word	3
+ 42.  105 000004  	.word	4
+ 43.  106 000005  	.word	5
+ 44.  107 000000  left:	.word 0
+ 45.  108 000000  middle:	.word 0
+ 46.  109 000000  right:	.word 0
+
+                     SYMBOL TABLE CONTENTS
+
+000101 = ARRAYSIZE       000016 = ELSE            000012 = ELSEIF          
+00001C = END             00001A = FOUND           000008 = IF              
+000107 = LEFT            000003 = LOOP            000108 = MIDDLE          
+000109 = RIGHT           000102 = SORTED          000100 = TARGET          

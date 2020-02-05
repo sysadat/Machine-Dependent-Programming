@@ -1,0 +1,39 @@
+	.equ	@, $000
+	.equ	arraySize, 6	
+
+	lda#	0
+	ldx#	0
+loop:	cmx#	arraySize
+	jge	end
+	lda+	xArray
+	sta	xTemp
+	lda+	yArray
+	sta	yTemp
+	lda	xTemp
+	cma	yTemp
+	jle	lessThan
+	adx#	1
+	lda#	1
+	jmp	loop
+
+lessThan:	lda#	0
+	hlt		
+	
+end:	hlt
+	.end
+
+xTemp:	.word 0
+yTemp:	.word 0
+
+xArray:	.word 95
+	.word	1002
+	.word	233	
+	.word	-137
+	.word	6332
+	.word	-33191
+yArray:	.word	35
+	.word	102
+	.word	109
+	.word	-1378
+	.word	6332
+	.word	-33194

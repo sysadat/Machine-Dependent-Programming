@@ -1,0 +1,46 @@
+	.equ	@, $000
+	ldx#	0
+	lda	arraySize
+	sta	right
+loop:	lda	right
+	cma	left
+	jlt	end
+	ada	left
+	div#	2
+if:	sta	middle
+	ldx	middle
+	lda#	0
+	lda+	sorted
+	cma	target
+	jeq	found
+	lda	target
+	cma+	sorted
+	jle	elseIf
+	jge	else
+elseIf:	lda	middle
+	sba#	1	
+	sta	right
+	jmp	loop
+else:	lda	middle
+	ada#	1
+	sta	left
+	jmp	loop
+		
+found:	lda#	1
+	hlt
+
+end:	lda#	0
+	hlt
+	.end
+
+	.equ	@, $100
+target:	.word 5
+arraySize:	.word	5	
+sorted:	.word 1
+	.word	2
+	.word	3
+	.word	4
+	.word	5
+left:	.word 0
+middle:	.word 0
+right:	.word 0

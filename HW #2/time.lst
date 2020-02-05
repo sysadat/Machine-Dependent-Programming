@@ -1,0 +1,57 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.  000 002102  seconds:	lda 	currentSecond
+  2.  001 102105  	ada 	passedSecond
+  3.  002 042108  	sta 	futureSecond
+  4.              
+  5.  003 002101  minutes:	lda 	currentMinute
+  6.  004 102104  	ada 	passedMinute
+  7.  005 042109  	sta 	tempMinute
+  8.  006 002108  	lda 	futureSecond
+  9.  007 19003C  	div# 	60
+ 10.  008 102109  	ada 	tempMinute
+ 11.  009 042107  	sta 	futureMinute
+ 12.              	
+ 13.              	
+ 14.  00A 002100  hours:	lda 	currentHour
+ 15.  00B 102103  	ada 	passedHour
+ 16.  00C 04210A  	sta 	tempHour
+ 17.  00D 002107  	lda 	futureMinute
+ 18.  00E 19003C  	div#	60
+ 19.  00F 10210A  	ada 	tempHour
+ 20.  010 042106  	sta 	futureHour
+ 21.              		
+ 22.  011 002108  modSeconds:	lda 	futureSecond
+ 23.  012 1A003C  	mod# 	60
+ 24.  013 042108  	sta 	futureSecond
+ 25.              
+ 26.  014 002107  modMinutes:	lda 	futureMinute
+ 27.  015 1A003C  	mod# 	60
+ 28.  016 042107  	sta 	futureMinute
+ 29.              
+ 30.  017 002106  modHours:	lda 	futureHour
+ 31.  018 1A0018  	mod#	24
+ 32.  019 042106  	sta 	futureHour
+ 33.              
+ 34.  01A FFFFFF  end:	hlt
+ 35.              	.equ 	@,$100
+ 36.  100 000011  currentHour:	.word 17 
+ 37.  101 000022  currentMinute:	.word 34
+ 38.  102 000038  currentSecond:	.word 56 
+ 39.  103 000009  passedHour:	.word 9
+ 40.  104 000030  passedMinute:	.word 48 
+ 41.  105 000011  passedSecond:	.word 17 
+ 42.  106 000000  futureHour: 	.word 0
+ 43.  107 000000  futureMinute: 	.word 0
+ 44.  108 000000  futureSecond: 	.word	0
+ 45.  109 000000  tempMinute:	.word	0
+ 46.  10A 000000  tempHour:	.word	0
+ 47.              	.end
+
+                     SYMBOL TABLE CONTENTS
+
+000100 = CURRENTHOUR     000101 = CURRENTMINUTE   000102 = CURRENTSECOND   
+00001A = END             000106 = FUTUREHOUR      000107 = FUTUREMINUTE    
+000108 = FUTURESECOND    00000A = HOURS           000003 = MINUTES         
+000017 = MODHOURS        000014 = MODMINUTES      000011 = MODSECONDS      
+000103 = PASSEDHOUR      000104 = PASSEDMINUTE    000105 = PASSEDSECOND    
+000000 = SECONDS         00010A = TEMPHOUR        000109 = TEMPMINUTE      

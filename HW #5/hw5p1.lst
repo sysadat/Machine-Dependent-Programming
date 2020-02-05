@@ -1,0 +1,67 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ;Calling Program 
+  2.              	.equ  @,$000
+  3.              	.equ	stack, $100
+  4.              
+  5.  000 020100  	lds#	stack
+  6.  001 030000  	ldf#	$000
+  7.  002 080200  	psh#	oldString
+  8.  003 080019  	psh#	strLen	
+  9.  004 080209  	psh#	newString
+ 10.  005 412020  	jsr	swapcase
+ 11.  006 120003  	ads#	$003
+ 12.  007 FFFFFF  end:	hlt
+ 13.              	.end	
+ 14.              ;Swapcase Sub-Routine 
+ 15.              	.equ  @,$020
+ 16.              	.equ	strOld, 4
+ 17.              	.equ	length, 3
+ 18.              	.equ	strNew, 2
+ 19.              
+ 20.  020 FFF012  swapcase:	pshf
+ 21.  021 FFF008  	tsf
+ 22.  022 010000  	ldx#	$000
+ 23.              
+ 24.  023 507004  loop:	ldc* ! strOld
+ 25.  024 200061  	cma#	'a'
+ 26.  025 4A202B  	jlt	capitalize
+ 27.  026 20007A  	cma#	'z'
+ 28.  027 4D202B  	jgt	capitalize
+ 29.  028 140020  	sba#	'a' - 'A'
+ 30.  029 517002  	stc* ! strNew
+ 31.  02A 402033  	jmp	increment
+ 32.              
+ 33.  02B 507004  capitalize:	ldc* ! strOld
+ 34.  02C 200041  	cma#	'A'
+ 35.  02D 4A2031  	jlt	unchanged
+ 36.  02E 20005A  	cma#	'Z'
+ 37.  02F 4D2031  	jgt	unchanged
+ 38.  030 100020  	ada#	'a' - 'A'
+ 39.              
+ 40.  031 517002  unchanged:	stc* ! strNew
+ 41.  032 402033  	jmp	increment
+ 42.              
+ 43.  033 603003  increment:	aoc ! length
+ 44.  034 4A2023  	jlt	loop
+ 45.  035 FFF015  	popf
+ 46.  036 FFF040  	rtn
+ 47.              
+ 48.              	.equ @, $200
+ 49.  200 6C4541  oldString:	.char 'lEArN pYtHOn iN 30 YeaRS!', strLen
+      201 724E20
+      202 705974
+      203 484F6E
+      204 20694E
+      205 203330
+      206 205965
+      207 615253
+      208 212020
+ 50.  209 FFFFFF  newString:	.blkw strLen, -1
+
+                     SYMBOL TABLE CONTENTS
+
+00002B = CAPITALIZE      000007 = END             000033 = INCREMENT       
+000003 = LENGTH          000023 = LOOP            000209 = NEWSTRING       
+000200 = OLDSTRING       000100 = STACK           000019 = STRLEN          
+000002 = STRNEW          000004 = STROLD          000020 = SWAPCASE        
+000031 = UNCHANGED       

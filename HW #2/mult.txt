@@ -1,0 +1,25 @@
+// Sayed Yoseph Sadat
+// 914290757
+// pseudo code, not a real language
+
+int a;
+int b;
+int count = 0;
+int answer = 0;
+int ifNeg = 0;
+
+if (a < 0){
+  ifNeg += 1;
+}
+
+if (b < 0){
+  ifNeg += 1;
+}
+while (count <= b){
+  answer += a;
+  count += 1;
+}
+while(ifNeg > 0){
+  answer = -answer;
+  ifNeg -= 1;
+}

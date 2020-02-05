@@ -1,0 +1,413 @@
+;Sayed Yoseph Sadat
+;SID 914290757
+;Ali Halawa
+;SID 916150581	
+	.equ @,$000
+	.equ stackTop, $600
+	.equ crt_data,$317
+	.equ put_chr,$E08
+	.equ get_num, $E01
+	.equ put_num2, $E07
+	.equ put_nl,$E06
+	.equ kbd_stat, $000
+	.equ kbd_data, $001
+	.equ reset_ready,$40
+	.equ start_after_load,$10
+	.equ enable_and_reset,$C0
+	.equ tim_ctrl,$030
+	.equ tim_stat,$030
+	.equ tim_value,$031
+	.equ tim_count,$034
+	.equ enable_int,$080
+	
+	lds# stackTop
+	lda# enable_int
+	outb kbd_stat
+	ldf# 0
+	jsr printPrompt
+	inc length
+	jsr getInput
+
+	psh# matrix
+	psh rows
+	psh cols
+	psh# nextmatrix
+
+main:	lda countF
+	cma numberOfGenerations
+	jgt reWrite
+	jsr printGenerationLabel
+	jsr displayMatrix
+	jsr timer
+	jsr nextGen
+	jsr switch 
+	inc countF
+	jmp main
+
+
+;interrupt
+kbd_int:	psha
+	inb kbd_data
+	lda# reset_ready
+	outb tim_ctrl
+	popa
+	
+	lda# 1
+	sta interruptCheck
+	irtn
+	
+
+;timer
+timer:	lda# 0
+	sta	interruptCheck
+	lda# enable_int
+	outb kbd_stat
+	sie
+	lda reloadTime
+	outw tim_value	
+	lda# reset_ready + start_after_load
+	outb tim_ctrl	
+timeLoop:	lda interruptCheck	
+	cma# 1
+	jeq done
+	inb tim_stat
+	jge timeLoop
+done:	rtn
+
+
+;print the prompt	
+printPrompt:  pshf
+	tsf
+	psha
+	pshx
+	ldx# 0
+	dec length
+promptLoop:	ldc prompt
+	outb crt_data
+	aoc length
+	jle promptLoop
+	jsr put_nl
+	popx
+	popa
+	popf
+	rtn
+
+reWrite:	cie
+	jsr printPrompt
+	inc length
+	jsr getInput
+	jmp main
+
+
+
+;get number entered in the keyboard
+	.equ @,$065		
+getInput:	bgn# 0
+poll:	inb kbd_stat
+	jge poll
+	jsr get_num
+	cma#0
+	jeq ifZero
+	ada numberOfGenerations
+	sta numberOfGenerations
+	popf
+	rtn	
+
+ifZero:	popf ;doesnt want any new generations
+	ads# 5
+	hlt
+
+
+
+	.equ @,$07A
+printGenerationLabel:  bgn# 0
+              ldx# 0
+genLoop:     ldc generationLabel
+              outb crt_data
+              aoc generationLabelLength
+              jle genLoop
+              lda countF
+              jsr put_num2
+              jsr put_nl
+              popf
+              rtn
+
+
+
+;game of life
+	.equ @,$08E
+	.equ	prevMatrix,5
+	.equ rowCount,4
+	.equ colCount,3
+	.equ	newMatrix,2
+	
+nextGen:	bgn#	0
+	ldx#	$000
+	lda !	rowCount
+	mul !	colCount
+	sta size
+	lda# $000
+	sta index
+loop:	lda index
+	cma size
+	jge end
+
+left:	lda index
+	sba# $001
+	cma# $000
+	jlt right
+	tax
+	ada# $001
+	mod ! colCount
+	cma# $000
+	jeq right
+	lda& ! prevMatrix
+	cma# $000
+	jeq right
+	inc count
+
+right:	lda index
+	ada# $001
+	cma size
+	jge top
+	tax
+	mod ! colCount
+	cma# $000
+	jeq top
+	lda& ! prevMatrix
+	cma# $000
+	jeq top
+	inc count
+
+top:	lda index
+	sba ! colCount
+	cma# $000
+	jlt bottom
+	tax
+	lda& ! prevMatrix
+	cma# $000
+	jeq bottom
+	inc count
+
+bottom:	lda index
+	ada ! colCount
+	cma size
+	tax
+	jge topLeft
+	lda& ! prevMatrix
+	cma# $000
+	jeq topLeft
+	inc count
+
+topLeft:	lda index
+	sba ! colCount
+	sba# $001
+	cma# $000
+	jlt topRight
+	tax
+	ada# $001
+	mod ! colCount
+	cma# $000
+	jeq topRight
+	lda& ! prevMatrix
+	cma# $000
+	jeq topRight
+	inc count
+
+topRight:	lda index
+	sba ! colCount
+	ada# 1
+	cma# 0
+	jlt bottomLeft
+	tax
+	mod ! colCount
+	cma# 0
+	jeq bottomleft
+	lda& ! prevMatrix
+	cma# 0
+	jeq bottomleft
+	inc count
+
+bottomleft:   lda index
+	ada ! colCount
+	sba# 1
+	cma size
+	jge bottomright
+	tax
+	ada# 1
+	mod ! colCount
+	cma# 0
+	jeq bottomright
+	lda& ! prevMatrix
+	cma# 0
+	jeq bottomright
+	inc count
+
+bottomright: 	lda index
+	ada ! colCount
+	ada# 1
+	cma size
+	jge change
+	tax
+	mod ! colCount
+ 	cma# 0
+	jeq change
+	lda& ! prevMatrix
+	cma# 0
+	jeq change
+	inc count
+
+change:	ldx index
+	lda count
+	cma# 3
+	jgt dead
+	jeq alive
+	cma# 2
+	jlt dead
+	lda& ! prevMatrix
+	sta& ! newMatrix
+	jmp reset
+
+dead:	lda# 0
+	sta& ! newMatrix
+	jmp reset
+
+alive:	lda# 1
+	sta& ! newMatrix
+	jmp reset
+
+reset:	lda# 0
+	sta count
+	inc index
+	jmp loop
+end:	popf
+	rtn
+
+	.equ @,$550
+	.equ	oldMatrix2,5
+	.equ	newMatrix2,2
+
+switch:	bgn# 	0
+	ldx# 	$000
+switchLoop:	cmx size
+	jge endSwitch
+	lda& ! newMatrix2
+	sta& ! oldMatrix2
+	adx# $001
+	jmp switchLoop
+endSwitch:	popf
+	rtn
+
+	.equ @,$500
+	.equ	ourMatrix,5
+	.equ rowCount2,4
+	.equ colCount2,3
+
+;print the matrix
+displayMatrix:	bgn# 0
+	ldx# 0
+	lda ! rowCount2
+	mul ! colCount2
+	sba# 1
+	sta size
+displayLoop:	lda	i
+	cma size
+	jgt matrixDone
+	lda& ! ourMatrix
+	cma# 1
+	jne star
+	jmp zero
+star:	lda# '*'
+	jsr put_chr
+	jmp continue
+zero:	lda# '1'
+	jsr put_chr
+continue:	lda# ' '
+	jsr put_chr
+	inc i
+	lda i
+	adx# 1
+	mod ! colCount2
+	jne displayLoop
+	jsr put_nl
+	jmp displayLoop
+matrixDone:	lda# 0
+	sta i
+	popf
+	rtn
+
+
+;variables
+
+	.equ @, $190
+prompt:	.char 'How many new generations would you like to print (enter 0 to end)?', prompt_len
+generationLabel:	.char 'Generation: '
+generationLabelLength:	.word 12
+count:	.word 0
+index:	.word 0
+i:	.word 0
+j:	.word 0
+size:	.word 0
+length:	.word prompt_len
+countF:	.word 0
+numberOfGenerations:	.word 0
+reloadTime:	.word $009000 ;should be about 10 seconds
+interruptCheck: .word 0
+
+	.equ @,$800
+rows:	.word 6
+cols:	.word 7
+
+matrix:	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	
+	.word 0
+	.word 0
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	
+	.word 0
+	.word 0
+	.word 0
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 1
+	.word 1
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+	
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.equ @,$250
+nextMatrix:	.blkw 9,0
+
+	.equ	@,$FF8
+	.word kbd_int

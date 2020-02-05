@@ -1,0 +1,49 @@
+	.equ	@, $000
+	lda#	0
+	ldx#	0
+
+forLoop:	lda	index
+	cma	arraySize
+	jge	end
+	ldx	index
+	lda+	array 
+	sta	currVal
+	ldx	index
+	stx	position
+
+whileLoop:	lda	position
+	cma#	0
+	jle	sort
+	ldx	position
+	lda+	array-1
+	cma	currVal
+	jle	sort
+	ldx	position
+	sta+	array
+	lda	position
+	sba#	1
+	sta	position
+	jmp	whileLoop
+
+sort:	lda	currVal
+	ldx	position
+	sta+	array
+	lda	index
+	ada#	1
+	sta	index
+	jmp	forLoop
+
+end:	hlt
+	.end
+
+	.equ	@, $100
+arraySize:	.word	6
+array:	.word	100
+	.word 74
+	.word -144
+	.word 10022
+	.word 657
+	.word -33
+position:	.word	0
+index:	.word	1
+currVal:	.word	0

@@ -1,0 +1,88 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ;Calling Program 	
+  2.              	.equ	@, $000
+  3.              	.equ	stack, $200
+  4.              	.equ	numRow, 2
+  5.              	.equ	numCol, 4
+  6.              	.equ	arraySize, numRow * numCol
+  7.              
+  8.  000 020200  	lds#	stack
+  9.  001 030000  	ldf#	$000
+ 10.  002 080C00  	psh#	array
+ 11.  003 080002  	psh#	numRow
+ 12.  004 080004  	psh#	numCol
+ 13.  005 080C08  	psh#	transArray
+ 14.  006 412020  	jsr	transpose
+ 15.  007 120004  	ads#	$004
+ 16.  008 402009  	jmp	end
+ 17.              
+ 18.  009 FFFFFF  end:	hlt
+ 19.              	.end
+ 20.              ;Sub-Routine
+ 21.              	.equ	@, $020
+ 22.              	.equ	oldArray, 5	
+ 23.              	.equ	col, 4
+ 24.              	.equ	row, 3
+ 25.              	.equ	newArray, 2
+ 26.              
+ 27.  020 FFF012  transpose:	pshf
+ 28.  021 FFF008  	tsf
+ 29.  022 FFF011  	pshx
+ 30.  023 000000  	lda#	$000
+ 31.  024 042C11  	sta	j
+ 32.  025 000000  	lda#	$000
+ 33.  026 042C10  	sta	i
+ 34.              
+ 35.  027 002C12  forLoop1:	lda	temp
+ 36.  028 203003  	cma !	row
+ 37.  029 4B203E  	jge	endTrans
+ 38.  02A 002C12  	lda	temp
+ 39.  02B 042C10  	sta	i
+ 40.              
+ 41.  02C 012C10  forLoop2:	ldx	i
+ 42.  02D 210008  	cmx#	arraySize	
+ 43.  02E 4B203A  	jge	incTemp
+ 44.  02F 002C10  	lda	i		
+ 45.  030 009005  	lda& ! oldArray
+ 46.  031 012C11  	ldx	j
+ 47.  032 049002  	sta& ! newArray
+ 48.  033 002C10  	lda	i
+ 49.  034 103003  	ada ! row
+ 50.  035 042C10  	sta	i
+ 51.  036 002C11  	lda	j
+ 52.  037 100001  	ada#	$001
+ 53.  038 042C11  	sta	j
+ 54.  039 40202C  	jmp	forLoop2
+ 55.              
+ 56.  03A 002C12  incTemp:	lda	temp
+ 57.  03B 100001  	ada#	$001
+ 58.  03C 042C12  	sta	temp
+ 59.  03D 402027  	jmp	forLoop1
+ 60.              
+ 61.  03E FFF014  endTrans:	popx	
+ 62.  03F FFF015  	popf	
+ 63.  040 FFF040  	rtn		
+ 64.              
+ 65.              	.equ	@, $C00
+ 66.  C00 000008  array:	.word	8
+ 67.  C01 000009  	.word	9
+ 68.  C02 00000A  	.word	10
+ 69.  C03 00000B  	.word	11
+ 70.  C04 00000C  	.word	12
+ 71.  C05 00000D  	.word	13
+ 72.  C06 00000E  	.word	14
+ 73.  C07 00000F  	.word	15
+ 74.  C08 FFFFFF  transArray:	.blkw	arraySize, -1
+ 75.  C10 000000  i:	.word	0
+ 76.  C11 000000  j:	.word	0
+ 77.  C12 000000  temp:	.word	0
+
+                     SYMBOL TABLE CONTENTS
+
+000C00 = ARRAY           000008 = ARRAYSIZE       000004 = COL             
+000009 = END             00003E = ENDTRANS        000027 = FORLOOP1        
+00002C = FORLOOP2        000C10 = I               00003A = INCTEMP         
+000C11 = J               000002 = NEWARRAY        000004 = NUMCOL          
+000002 = NUMROW          000005 = OLDARRAY        000003 = ROW             
+000200 = STACK           000C12 = TEMP            000C08 = TRANSARRAY      
+000020 = TRANSPOSE       

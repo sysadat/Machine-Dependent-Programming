@@ -1,0 +1,47 @@
+seconds:	lda 	currentSecond
+	ada 	passedSecond
+	sta 	futureSecond
+
+minutes:	lda 	currentMinute
+	ada 	passedMinute
+	sta 	tempMinute
+	lda 	futureSecond
+	div# 	60
+	ada 	tempMinute
+	sta 	futureMinute
+	
+	
+hours:	lda 	currentHour
+	ada 	passedHour
+	sta 	tempHour
+	lda 	futureMinute
+	div#	60
+	ada 	tempHour
+	sta 	futureHour
+		
+modSeconds:	lda 	futureSecond
+	mod# 	60
+	sta 	futureSecond
+
+modMinutes:	lda 	futureMinute
+	mod# 	60
+	sta 	futureMinute
+
+modHours:	lda 	futureHour
+	mod#	24
+	sta 	futureHour
+
+end:	hlt
+	.equ 	@,$100
+currentHour:	.word 17 
+currentMinute:	.word 34
+currentSecond:	.word 56 
+passedHour:	.word 9
+passedMinute:	.word 48 
+passedSecond:	.word 17 
+futureHour: 	.word 0
+futureMinute: 	.word 0
+futureSecond: 	.word	0
+tempMinute:	.word	0
+tempHour:	.word	0
+	.end

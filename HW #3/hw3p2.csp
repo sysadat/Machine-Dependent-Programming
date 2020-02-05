@@ -1,0 +1,45 @@
+	.equ	@, $000
+iLoop:	lda	i
+	cma 	arraySize
+	jeq 	end
+	ldx	i
+	stx 	minI
+	lda+ 	array
+	sta 	min
+	
+jLoop:	adx#	1	
+	cmx	arraySize
+	jge 	if
+	lda+ 	array
+	cma 	min
+	jge 	jLoop
+	sta 	min
+	stx 	minI
+	jmp 	jLoop
+
+if:	ldx 	i
+	lda+ 	array
+	ldx 	minI
+	sta+	array
+	lda 	min
+	ldx 	i
+	sta+ 	array
+	lda 	i
+	ada# 	1
+	sta 	i
+	jmp 	iLoop
+
+end:	hlt
+	.end
+
+	.equ	@, $100
+arraySize:	.word 6
+array:	.word 100
+	.word 74
+	.word -144
+	.word 10022
+	.word 657
+	.word	-33
+i:	.word 0
+min:	.word 0
+minI:	.word -1

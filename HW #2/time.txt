@@ -1,0 +1,14 @@
+// Sayed Yoseph Sadat
+// 914290757
+// pseudo code, not a real language
+
+int currentHour, currentMinute, currentSecond;
+int passedHour, passedMinute, passedSecond;
+int futureHour, futureMinute, futureSecond;
+
+futureSecond = currentSecond + passedSecond;
+futureMinute = currentMinute + passedMinute + (futureSecond / 60);
+futureHour = currentHour + passedHour + (futureMinute / 60);
+futureSecond = futureSecond % 60;
+futureMinute = futureMinute % 60;
+futureHour = futureHour % 24;

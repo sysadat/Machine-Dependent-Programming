@@ -1,0 +1,468 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ;Sayed Yoseph Sadat
+  2.              ;SID 914290757
+  3.              ;Ali Halawa
+  4.              ;SID 916150581	
+  5.              	.equ @,$000
+  6.              	.equ stackTop, $600
+  7.              	.equ crt_data,$317
+  8.              	.equ put_chr,$E08
+  9.              	.equ get_num, $E01
+ 10.              	.equ put_num2, $E07
+ 11.              	.equ put_nl,$E06
+ 12.              	.equ kbd_stat, $000
+ 13.              	.equ kbd_data, $001
+ 14.              	.equ reset_ready,$40
+ 15.              	.equ start_after_load,$10
+ 16.              	.equ enable_and_reset,$C0
+ 17.              	.equ tim_ctrl,$030
+ 18.              	.equ tim_stat,$030
+ 19.              	.equ tim_value,$031
+ 20.              	.equ tim_count,$034
+ 21.              	.equ enable_int,$080
+ 22.              	
+ 23.  000 020600  	lds# stackTop
+ 24.  001 000080  	lda# enable_int
+ 25.  002 712000  	outb kbd_stat
+ 26.  003 030000  	ldf# 0
+ 27.  004 41202C  	jsr printPrompt
+ 28.  005 1B21B0  	inc length
+ 29.  006 412065  	jsr getInput
+ 30.              
+ 31.  007 080802  	psh# matrix
+ 32.  008 082800  	psh rows
+ 33.  009 082801  	psh cols
+ 34.  00A 080250  	psh# nextmatrix
+ 35.              
+ 36.  00B 0021B1  main:	lda countF
+ 37.  00C 2021B2  	cma numberOfGenerations
+ 38.  00D 4D203B  	jgt reWrite
+ 39.  00E 41207A  	jsr printGenerationLabel
+ 40.  00F 412500  	jsr displayMatrix
+ 41.  010 41201D  	jsr timer
+ 42.  011 41208E  	jsr nextGen
+ 43.  012 412550  	jsr switch 
+ 44.  013 1B21B1  	inc countF
+ 45.  014 40200B  	jmp main
+ 46.              
+ 47.              
+ 48.              ;interrupt
+ 49.  015 FFF010  kbd_int:	psha
+ 50.  016 702001  	inb kbd_data
+ 51.  017 000040  	lda# reset_ready
+ 52.  018 712030  	outb tim_ctrl
+ 53.  019 FFF013  	popa
+ 54.              	
+ 55.  01A 000001  	lda# 1
+ 56.  01B 0421B4  	sta interruptCheck
+ 57.  01C FFF041  	irtn
+ 58.              	
+ 59.              
+ 60.              ;timer
+ 61.  01D 000000  timer:	lda# 0
+ 62.  01E 0421B4  	sta	interruptCheck
+ 63.  01F 000080  	lda# enable_int
+ 64.  020 712000  	outb kbd_stat
+ 65.  021 FFF032  	sie
+ 66.  022 0021B3  	lda reloadTime
+ 67.  023 732031  	outw tim_value	
+ 68.  024 000050  	lda# reset_ready + start_after_load
+ 69.  025 712030  	outb tim_ctrl	
+ 70.  026 0021B4  timeLoop:	lda interruptCheck	
+ 71.  027 200001  	cma# 1
+ 72.  028 48202B  	jeq done
+ 73.  029 702030  	inb tim_stat
+ 74.  02A 4B2026  	jge timeLoop
+ 75.  02B FFF040  done:	rtn
+ 76.              
+ 77.              
+ 78.              ;print the prompt	
+ 79.  02C FFF012  printPrompt:  pshf
+ 80.  02D FFF008  	tsf
+ 81.  02E FFF010  	psha
+ 82.  02F FFF011  	pshx
+ 83.  030 010000  	ldx# 0
+ 84.  031 1C21B0  	dec length
+ 85.  032 502190  promptLoop:	ldc prompt
+ 86.  033 712317  	outb crt_data
+ 87.  034 6021B0  	aoc length
+ 88.  035 4C2032  	jle promptLoop
+ 89.  036 412E06  	jsr put_nl
+ 90.  037 FFF014  	popx
+ 91.  038 FFF013  	popa
+ 92.  039 FFF015  	popf
+ 93.  03A FFF040  	rtn
+ 94.              
+ 95.  03B FFF033  reWrite:	cie
+ 96.  03C 41202C  	jsr printPrompt
+ 97.  03D 1B21B0  	inc length
+ 98.  03E 412065  	jsr getInput
+ 99.  03F 40200B  	jmp main
+100.              
+101.              
+102.              
+103.              ;get number entered in the keyboard
+104.              	.equ @,$065		
+105.  065 680000  getInput:	bgn# 0
+106.  066 702000  poll:	inb kbd_stat
+107.  067 4B2066  	jge poll
+108.  068 412E01  	jsr get_num
+109.  069 200000  	cma#0
+110.  06A 48206F  	jeq ifZero
+111.  06B 1021B2  	ada numberOfGenerations
+112.  06C 0421B2  	sta numberOfGenerations
+113.  06D FFF015  	popf
+114.  06E FFF040  	rtn	
+115.              
+116.  06F FFF015  ifZero:	popf ;doesnt want any new generations
+117.  070 120005  	ads# 5
+118.  071 FFFFFF  	hlt
+119.              
+120.              
+121.              
+122.              	.equ @,$07A
+123.  07A 680000  printGenerationLabel:  bgn# 0
+124.  07B 010000                ldx# 0
+125.  07C 5021A6  genLoop:     ldc generationLabel
+126.  07D 712317                outb crt_data
+127.  07E 6021AA                aoc generationLabelLength
+128.  07F 4C207C                jle genLoop
+129.  080 0021B1                lda countF
+130.  081 412E07                jsr put_num2
+131.  082 412E06                jsr put_nl
+132.  083 FFF015                popf
+133.  084 FFF040                rtn
+134.              
+135.              
+136.              
+137.              ;game of life
+138.              	.equ @,$08E
+139.              	.equ	prevMatrix,5
+140.              	.equ rowCount,4
+141.              	.equ colCount,3
+142.              	.equ	newMatrix,2
+143.              	
+144.  08E 680000  nextGen:	bgn#	0
+145.  08F 010000  	ldx#	$000
+146.  090 003004  	lda !	rowCount
+147.  091 183003  	mul !	colCount
+148.  092 0421AF  	sta size
+149.  093 000000  	lda# $000
+150.  094 0421AC  	sta index
+151.  095 0021AC  loop:	lda index
+152.  096 2021AF  	cma size
+153.  097 4B210D  	jge end
+154.              
+155.  098 0021AC  left:	lda index
+156.  099 140001  	sba# $001
+157.  09A 200000  	cma# $000
+158.  09B 4A20A5  	jlt right
+159.  09C FFF000  	tax
+160.  09D 100001  	ada# $001
+161.  09E 1A3003  	mod ! colCount
+162.  09F 200000  	cma# $000
+163.  0A0 4820A5  	jeq right
+164.  0A1 009005  	lda& ! prevMatrix
+165.  0A2 200000  	cma# $000
+166.  0A3 4820A5  	jeq right
+167.  0A4 1B21AB  	inc count
+168.              
+169.  0A5 0021AC  right:	lda index
+170.  0A6 100001  	ada# $001
+171.  0A7 2021AF  	cma size
+172.  0A8 4B20B1  	jge top
+173.  0A9 FFF000  	tax
+174.  0AA 1A3003  	mod ! colCount
+175.  0AB 200000  	cma# $000
+176.  0AC 4820B1  	jeq top
+177.  0AD 009005  	lda& ! prevMatrix
+178.  0AE 200000  	cma# $000
+179.  0AF 4820B1  	jeq top
+180.  0B0 1B21AB  	inc count
+181.              
+182.  0B1 0021AC  top:	lda index
+183.  0B2 143003  	sba ! colCount
+184.  0B3 200000  	cma# $000
+185.  0B4 4A20BA  	jlt bottom
+186.  0B5 FFF000  	tax
+187.  0B6 009005  	lda& ! prevMatrix
+188.  0B7 200000  	cma# $000
+189.  0B8 4820BA  	jeq bottom
+190.  0B9 1B21AB  	inc count
+191.              
+192.  0BA 0021AC  bottom:	lda index
+193.  0BB 103003  	ada ! colCount
+194.  0BC 2021AF  	cma size
+195.  0BD FFF000  	tax
+196.  0BE 4B20C3  	jge topLeft
+197.  0BF 009005  	lda& ! prevMatrix
+198.  0C0 200000  	cma# $000
+199.  0C1 4820C3  	jeq topLeft
+200.  0C2 1B21AB  	inc count
+201.              
+202.  0C3 0021AC  topLeft:	lda index
+203.  0C4 143003  	sba ! colCount
+204.  0C5 140001  	sba# $001
+205.  0C6 200000  	cma# $000
+206.  0C7 4A20D1  	jlt topRight
+207.  0C8 FFF000  	tax
+208.  0C9 100001  	ada# $001
+209.  0CA 1A3003  	mod ! colCount
+210.  0CB 200000  	cma# $000
+211.  0CC 4820D1  	jeq topRight
+212.  0CD 009005  	lda& ! prevMatrix
+213.  0CE 200000  	cma# $000
+214.  0CF 4820D1  	jeq topRight
+215.  0D0 1B21AB  	inc count
+216.              
+217.  0D1 0021AC  topRight:	lda index
+218.  0D2 143003  	sba ! colCount
+219.  0D3 100001  	ada# 1
+220.  0D4 200000  	cma# 0
+221.  0D5 4A20DE  	jlt bottomLeft
+222.  0D6 FFF000  	tax
+223.  0D7 1A3003  	mod ! colCount
+224.  0D8 200000  	cma# 0
+225.  0D9 4820DE  	jeq bottomleft
+226.  0DA 009005  	lda& ! prevMatrix
+227.  0DB 200000  	cma# 0
+228.  0DC 4820DE  	jeq bottomleft
+229.  0DD 1B21AB  	inc count
+230.              
+231.  0DE 0021AC  bottomleft:   lda index
+232.  0DF 103003  	ada ! colCount
+233.  0E0 140001  	sba# 1
+234.  0E1 2021AF  	cma size
+235.  0E2 4B20EC  	jge bottomright
+236.  0E3 FFF000  	tax
+237.  0E4 100001  	ada# 1
+238.  0E5 1A3003  	mod ! colCount
+239.  0E6 200000  	cma# 0
+240.  0E7 4820EC  	jeq bottomright
+241.  0E8 009005  	lda& ! prevMatrix
+242.  0E9 200000  	cma# 0
+243.  0EA 4820EC  	jeq bottomright
+244.  0EB 1B21AB  	inc count
+245.              
+246.  0EC 0021AC  bottomright: 	lda index
+247.  0ED 103003  	ada ! colCount
+248.  0EE 100001  	ada# 1
+249.  0EF 2021AF  	cma size
+250.  0F0 4B20F9  	jge change
+251.  0F1 FFF000  	tax
+252.  0F2 1A3003  	mod ! colCount
+253.  0F3 200000   	cma# 0
+254.  0F4 4820F9  	jeq change
+255.  0F5 009005  	lda& ! prevMatrix
+256.  0F6 200000  	cma# 0
+257.  0F7 4820F9  	jeq change
+258.  0F8 1B21AB  	inc count
+259.              
+260.  0F9 0121AC  change:	ldx index
+261.  0FA 0021AB  	lda count
+262.  0FB 200003  	cma# 3
+263.  0FC 4D2103  	jgt dead
+264.  0FD 482106  	jeq alive
+265.  0FE 200002  	cma# 2
+266.  0FF 4A2103  	jlt dead
+267.  100 009005  	lda& ! prevMatrix
+268.  101 049002  	sta& ! newMatrix
+269.  102 402109  	jmp reset
+270.              
+271.  103 000000  dead:	lda# 0
+272.  104 049002  	sta& ! newMatrix
+273.  105 402109  	jmp reset
+274.              
+275.  106 000001  alive:	lda# 1
+276.  107 049002  	sta& ! newMatrix
+277.  108 402109  	jmp reset
+278.              
+279.  109 000000  reset:	lda# 0
+280.  10A 0421AB  	sta count
+281.  10B 1B21AC  	inc index
+282.  10C 402095  	jmp loop
+283.  10D FFF015  end:	popf
+284.  10E FFF040  	rtn
+285.              
+286.              	.equ @,$550
+287.              	.equ	oldMatrix2,5
+288.              	.equ	newMatrix2,2
+289.              
+290.  550 680000  switch:	bgn# 	0
+291.  551 010000  	ldx# 	$000
+292.  552 2121AF  switchLoop:	cmx size
+293.  553 4B2558  	jge endSwitch
+294.  554 009002  	lda& ! newMatrix2
+295.  555 049005  	sta& ! oldMatrix2
+296.  556 110001  	adx# $001
+297.  557 402552  	jmp switchLoop
+298.  558 FFF015  endSwitch:	popf
+299.  559 FFF040  	rtn
+300.              
+301.              	.equ @,$500
+302.              	.equ	ourMatrix,5
+303.              	.equ rowCount2,4
+304.              	.equ colCount2,3
+305.              
+306.              ;print the matrix
+307.  500 680000  displayMatrix:	bgn# 0
+308.  501 010000  	ldx# 0
+309.  502 003004  	lda ! rowCount2
+310.  503 183003  	mul ! colCount2
+311.  504 140001  	sba# 1
+312.  505 0421AF  	sta size
+313.  506 0021AD  displayLoop:	lda	i
+314.  507 2021AF  	cma size
+315.  508 4D251B  	jgt matrixDone
+316.  509 009005  	lda& ! ourMatrix
+317.  50A 200001  	cma# 1
+318.  50B 49250D  	jne star
+319.  50C 402510  	jmp zero
+320.  50D 00002A  star:	lda# '*'
+321.  50E 412E08  	jsr put_chr
+322.  50F 402512  	jmp continue
+323.  510 000031  zero:	lda# '1'
+324.  511 412E08  	jsr put_chr
+325.  512 000020  continue:	lda# ' '
+326.  513 412E08  	jsr put_chr
+327.  514 1B21AD  	inc i
+328.  515 0021AD  	lda i
+329.  516 110001  	adx# 1
+330.  517 1A3003  	mod ! colCount2
+331.  518 492506  	jne displayLoop
+332.  519 412E06  	jsr put_nl
+333.  51A 402506  	jmp displayLoop
+334.  51B 000000  matrixDone:	lda# 0
+335.  51C 0421AD  	sta i
+336.  51D FFF015  	popf
+337.  51E FFF040  	rtn
+338.              
+339.              
+340.              ;variables
+341.              
+342.              	.equ @, $190
+343.  190 486F77  prompt:	.char 'How many new generations would you like to print (enter 0 to end)?', prompt_len
+      191 206D61
+      192 6E7920
+      193 6E6577
+      194 206765
+      195 6E6572
+      196 617469
+      197 6F6E73
+      198 20776F
+      199 756C64
+      19A 20796F
+      19B 75206C
+      19C 696B65
+      19D 20746F
+      19E 207072
+      19F 696E74
+      1A0 202865
+      1A1 6E7465
+      1A2 722030
+      1A3 20746F
+      1A4 20656E
+      1A5 64293F
+344.  1A6 47656E  generationLabel:	.char 'Generation: '
+      1A7 657261
+      1A8 74696F
+      1A9 6E3A20
+345.  1AA 00000C  generationLabelLength:	.word 12
+346.  1AB 000000  count:	.word 0
+347.  1AC 000000  index:	.word 0
+348.  1AD 000000  i:	.word 0
+349.  1AE 000000  j:	.word 0
+350.  1AF 000000  size:	.word 0
+351.  1B0 000042  length:	.word prompt_len
+352.  1B1 000000  countF:	.word 0
+353.  1B2 000000  numberOfGenerations:	.word 0
+354.  1B3 009000  reloadTime:	.word $009000 ;should be about 10 seconds
+355.  1B4 000000  interruptCheck: .word 0
+356.              
+357.              	.equ @,$800
+358.  800 000006  rows:	.word 6
+359.  801 000007  cols:	.word 7
+360.              
+361.  802 000000  matrix:	.word 0
+362.  803 000000  	.word 0
+363.  804 000000  	.word 0
+364.  805 000000  	.word 0
+365.  806 000000  	.word 0
+366.  807 000000  	.word 0
+367.  808 000000  	.word 0
+368.              	
+369.  809 000000  	.word 0
+370.  80A 000000  	.word 0
+371.  80B 000001  	.word 1
+372.  80C 000000  	.word 0
+373.  80D 000000  	.word 0
+374.  80E 000000  	.word 0
+375.  80F 000000  	.word 0
+376.              	
+377.  810 000000  	.word 0
+378.  811 000000  	.word 0
+379.  812 000000  	.word 0
+380.  813 000001  	.word 1
+381.  814 000000  	.word 0
+382.  815 000000  	.word 0
+383.  816 000000  	.word 0
+384.              
+385.  817 000000  	.word 0
+386.  818 000001  	.word 1
+387.  819 000001  	.word 1
+388.  81A 000001  	.word 1
+389.  81B 000000  	.word 0
+390.  81C 000000  	.word 0
+391.  81D 000000  	.word 0
+392.              	
+393.  81E 000000  	.word 0
+394.  81F 000000  	.word 0
+395.  820 000000  	.word 0
+396.  821 000000  	.word 0
+397.  822 000000  	.word 0
+398.  823 000000  	.word 0
+399.  824 000000  	.word 0
+400.              	
+401.  825 000000  	.word 0
+402.  826 000000  	.word 0
+403.  827 000000  	.word 0
+404.  828 000000  	.word 0
+405.  829 000000  	.word 0
+406.  82A 000000  	.word 0
+407.  82B 000000  	.word 0
+408.              
+409.              	.equ @,$250
+410.  250 000000  nextMatrix:	.blkw 9,0
+411.              
+412.              	.equ	@,$FF8
+413.  FF8 000015  	.word kbd_int
+
+                     SYMBOL TABLE CONTENTS
+
+000106 = ALIVE           0000BA = BOTTOM          0000DE = BOTTOMLEFT      
+0000EC = BOTTOMRIGHT     0000F9 = CHANGE          000003 = COLCOUNT        
+000003 = COLCOUNT2       000801 = COLS            000512 = CONTINUE        
+0001AB = COUNT           0001B1 = COUNTF          000317 = CRT_DATA        
+000103 = DEAD            000506 = DISPLAYLOOP     000500 = DISPLAYMATRIX   
+00002B = DONE            0000C0 = ENABLE_AND_RESET000080 = ENABLE_INT      
+00010D = END             000558 = ENDSWITCH       0001A6 = GENERATIONLABEL 
+0001AA = GENERATIONLABELLENGTH00007C = GENLOOP         000065 = GETINPUT        
+000E01 = GET_NUM         0001AD = I               00006F = IFZERO          
+0001AC = INDEX           0001B4 = INTERRUPTCHECK  0001AE = J               
+000001 = KBD_DATA        000015 = KBD_INT         000000 = KBD_STAT        
+000098 = LEFT            0001B0 = LENGTH          000095 = LOOP            
+00000B = MAIN            000802 = MATRIX          00051B = MATRIXDONE      
+000002 = NEWMATRIX       000002 = NEWMATRIX2      00008E = NEXTGEN         
+000250 = NEXTMATRIX      0001B2 = NUMBEROFGENERATIONS000005 = OLDMATRIX2      
+000005 = OURMATRIX       000066 = POLL            000005 = PREVMATRIX      
+00007A = PRINTGENERATIONLABEL00002C = PRINTPROMPT     000190 = PROMPT          
+000032 = PROMPTLOOP      000042 = PROMPT_LEN      000E08 = PUT_CHR         
+000E06 = PUT_NL          000E07 = PUT_NUM2        0001B3 = RELOADTIME      
+000109 = RESET           000040 = RESET_READY     00003B = REWRITE         
+0000A5 = RIGHT           000004 = ROWCOUNT        000004 = ROWCOUNT2       
+000800 = ROWS            0001AF = SIZE            000600 = STACKTOP        
+00050D = STAR            000010 = START_AFTER_LOAD000550 = SWITCH          
+000552 = SWITCHLOOP      000026 = TIMELOOP        00001D = TIMER           
+000034 = TIM_COUNT       000030 = TIM_CTRL        000030 = TIM_STAT        
+000031 = TIM_VALUE       0000B1 = TOP             0000C3 = TOPLEFT         
+0000D1 = TOPRIGHT        000510 = ZERO            

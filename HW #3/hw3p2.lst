@@ -1,0 +1,52 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ	@, $000
+  2.  000 002107  iLoop:	lda	i
+  3.  001 202100  	cma 	arraySize
+  4.  002 48201B  	jeq 	end
+  5.  003 012107  	ldx	i
+  6.  004 052109  	stx 	minI
+  7.  005 004101  	lda+ 	array
+  8.  006 042108  	sta 	min
+  9.              	
+ 10.  007 110001  jLoop:	adx#	1	
+ 11.  008 212100  	cmx	arraySize
+ 12.  009 4B2010  	jge 	if
+ 13.  00A 004101  	lda+ 	array
+ 14.  00B 202108  	cma 	min
+ 15.  00C 4B2007  	jge 	jLoop
+ 16.  00D 042108  	sta 	min
+ 17.  00E 052109  	stx 	minI
+ 18.  00F 402007  	jmp 	jLoop
+ 19.              
+ 20.  010 012107  if:	ldx 	i
+ 21.  011 004101  	lda+ 	array
+ 22.  012 012109  	ldx 	minI
+ 23.  013 044101  	sta+	array
+ 24.  014 002108  	lda 	min
+ 25.  015 012107  	ldx 	i
+ 26.  016 044101  	sta+ 	array
+ 27.  017 002107  	lda 	i
+ 28.  018 100001  	ada# 	1
+ 29.  019 042107  	sta 	i
+ 30.  01A 402000  	jmp 	iLoop
+ 31.              
+ 32.  01B FFFFFF  end:	hlt
+ 33.              	.end
+ 34.              
+ 35.              	.equ	@, $100
+ 36.  100 000006  arraySize:	.word 6
+ 37.  101 000064  array:	.word 100
+ 38.  102 00004A  	.word 74
+ 39.  103 FFFF70  	.word -144
+ 40.  104 002726  	.word 10022
+ 41.  105 000291  	.word 657
+ 42.  106 FFFFDF  	.word	-33
+ 43.  107 000000  i:	.word 0
+ 44.  108 000000  min:	.word 0
+ 45.  109 FFFFFF  minI:	.word -1
+
+                     SYMBOL TABLE CONTENTS
+
+000101 = ARRAY           000100 = ARRAYSIZE       00001B = END             
+000107 = I               000010 = IF              000000 = ILOOP           
+000007 = JLOOP           000108 = MIN             000109 = MINI            

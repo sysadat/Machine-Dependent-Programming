@@ -1,0 +1,61 @@
+;Calling Program 
+	.equ  @,$000
+	.equ	stack,$100
+
+	lds#	stack
+	ldf#	$000
+	psh#	oldString
+	psh#	strLen	
+	psh#	newString
+	jsr	title
+	ads#	$003
+end:	hlt
+	.end	
+;Title Sub-Routine 
+	.equ @, $020
+	.equ	strOld, 4
+	.equ	length, 3
+	.equ	strNew, 2
+
+title:	pshf
+	tsf
+	ldx#	$000
+
+firstLetter:	ldc* ! strOld
+	cma#	'a'
+	jlt	next
+	cma#	'z'
+	jgt	next
+	sba#	32
+	stc* ! strNew
+	jmp	after 
+
+next:	stc* ! strNew 
+	aoc ! length
+	jge	finish
+	jlt	rest
+
+rest:	ldc* ! strOld
+	cma#	32
+	jeq 	increment
+	cma#	'A'
+	jlt	after
+	cma#	'Z'
+	jgt	after
+	ada#	32
+
+after:	stc* ! strNew
+	aoc  ! length
+	jge	finish
+	jlt 	rest
+
+increment:	stc*	! strNew
+	adx#	$001
+	jmp	firstLetter
+
+finish:	popf
+	rtn
+
+	.equ @, $200
+oldString:	.char 'lEArN pYtHOn iN 30 YeaRS!', strLen
+newString:	.blkw strLen, -1

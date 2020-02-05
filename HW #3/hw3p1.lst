@@ -1,0 +1,46 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ	@, $000
+  2.              	.equ	arraySize, 6	
+  3.              
+  4.  000 000000  	lda#	0
+  5.  001 010000  	ldx#	0
+  6.  002 210006  loop:	cmx#	arraySize
+  7.  003 4B2010  	jge	end
+  8.  004 004013  	lda+	xArray
+  9.  005 042011  	sta	xTemp
+ 10.  006 004019  	lda+	yArray
+ 11.  007 042012  	sta	yTemp
+ 12.  008 002011  	lda	xTemp
+ 13.  009 202012  	cma	yTemp
+ 14.  00A 4C200E  	jle	lessThan
+ 15.  00B 110001  	adx#	1
+ 16.  00C 000001  	lda#	1
+ 17.  00D 402002  	jmp	loop
+ 18.              
+ 19.  00E 000000  lessThan:	lda#	0
+ 20.  00F FFFFFF  	hlt		
+ 21.              	
+ 22.  010 FFFFFF  end:	hlt
+ 23.              	.end
+ 24.              
+ 25.  011 000000  xTemp:	.word 0
+ 26.  012 000000  yTemp:	.word 0
+ 27.              
+ 28.  013 00005F  xArray:	.word 95
+ 29.  014 0003EA  	.word	1002
+ 30.  015 0000E9  	.word	233	
+ 31.  016 FFFF77  	.word	-137
+ 32.  017 0018BC  	.word	6332
+ 33.  018 FF7E59  	.word	-33191
+ 34.  019 000023  yArray:	.word	35
+ 35.  01A 000066  	.word	102
+ 36.  01B 00006D  	.word	109
+ 37.  01C FFFA9E  	.word	-1378
+ 38.  01D 0018BC  	.word	6332
+ 39.  01E FF7E56  	.word	-33194
+
+                     SYMBOL TABLE CONTENTS
+
+000006 = ARRAYSIZE       000010 = END             00000E = LESSTHAN        
+000002 = LOOP            000013 = XARRAY          000011 = XTEMP           
+000019 = YARRAY          000012 = YTEMP           

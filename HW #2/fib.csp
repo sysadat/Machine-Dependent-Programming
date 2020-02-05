@@ -1,0 +1,32 @@
+start:	LDA 	A
+	CMA# 	$001
+	JGT 	loop
+	JMP 	end
+
+loop:	LDA 	temp
+	ADA 	B
+	ADA 	FIBON
+	STA 	temp
+	LDA 	FIBON
+	STA 	B
+	LDA 	temp
+	STA 	FIBON
+	LDA 	i
+	CMA 	A
+	JEQ 	end
+	ADA# 	$001
+	STA 	i
+	LDA# 	$000
+	STA 	temp
+	JMP 	loop
+
+
+end:	HLT
+
+	.equ	@,$100
+A:	.word	9
+B:	.word 0
+FIBON:	.word	1
+temp:	.word 0
+i:	.word 2
+	.end

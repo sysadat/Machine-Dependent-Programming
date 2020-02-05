@@ -1,0 +1,78 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ;Calling Program 
+  2.              	.equ  @,$000
+  3.              	.equ	stack,$100
+  4.              
+  5.  000 020100  	lds#	stack
+  6.  001 030000  	ldf#	$000
+  7.  002 080200  	psh#	oldString
+  8.  003 080019  	psh#	strLen	
+  9.  004 080209  	psh#	newString
+ 10.  005 412020  	jsr	title
+ 11.  006 120003  	ads#	$003
+ 12.  007 FFFFFF  end:	hlt
+ 13.              	.end	
+ 14.              ;Title Sub-Routine 
+ 15.              	.equ @, $020
+ 16.              	.equ	strOld, 4
+ 17.              	.equ	length, 3
+ 18.              	.equ	strNew, 2
+ 19.              
+ 20.  020 FFF012  title:	pshf
+ 21.  021 FFF008  	tsf
+ 22.  022 010000  	ldx#	$000
+ 23.              
+ 24.  023 507004  firstLetter:	ldc* ! strOld
+ 25.  024 200061  	cma#	'a'
+ 26.  025 4A202B  	jlt	next
+ 27.  026 20007A  	cma#	'z'
+ 28.  027 4D202B  	jgt	next
+ 29.  028 140020  	sba#	32
+ 30.  029 517002  	stc* ! strNew
+ 31.  02A 402037  	jmp	after 
+ 32.              
+ 33.  02B 517002  next:	stc* ! strNew 
+ 34.  02C 603003  	aoc ! length
+ 35.  02D 4B203E  	jge	finish
+ 36.  02E 4A202F  	jlt	rest
+ 37.              
+ 38.  02F 507004  rest:	ldc* ! strOld
+ 39.  030 200020  	cma#	32
+ 40.  031 48203B  	jeq 	increment
+ 41.  032 200041  	cma#	'A'
+ 42.  033 4A2037  	jlt	after
+ 43.  034 20005A  	cma#	'Z'
+ 44.  035 4D2037  	jgt	after
+ 45.  036 100020  	ada#	32
+ 46.              
+ 47.  037 517002  after:	stc* ! strNew
+ 48.  038 603003  	aoc  ! length
+ 49.  039 4B203E  	jge	finish
+ 50.  03A 4A202F  	jlt 	rest
+ 51.              
+ 52.  03B 517002  increment:	stc*	! strNew
+ 53.  03C 110001  	adx#	$001
+ 54.  03D 402023  	jmp	firstLetter
+ 55.              
+ 56.  03E FFF015  finish:	popf
+ 57.  03F FFF040  	rtn
+ 58.              
+ 59.              	.equ @, $200
+ 60.  200 6C4541  oldString:	.char 'lEArN pYtHOn iN 30 YeaRS!', strLen
+      201 724E20
+      202 705974
+      203 484F6E
+      204 20694E
+      205 203330
+      206 205965
+      207 615253
+      208 212020
+ 61.  209 FFFFFF  newString:	.blkw strLen, -1
+
+                     SYMBOL TABLE CONTENTS
+
+000037 = AFTER           000007 = END             00003E = FINISH          
+000023 = FIRSTLETTER     00003B = INCREMENT       000003 = LENGTH          
+000209 = NEWSTRING       00002B = NEXT            000200 = OLDSTRING       
+00002F = REST            000100 = STACK           000019 = STRLEN          
+000002 = STRNEW          000004 = STROLD          000020 = TITLE           

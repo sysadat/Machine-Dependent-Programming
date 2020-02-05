@@ -1,0 +1,56 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ	@, $000
+  2.  000 000000  	lda#	0
+  3.  001 010000  	ldx#	0
+  4.              
+  5.  002 002108  forLoop:	lda	index
+  6.  003 202100  	cma	arraySize
+  7.  004 4B201E  	jge	end
+  8.  005 012108  	ldx	index
+  9.  006 004101  	lda+	array 
+ 10.  007 042109  	sta	currVal
+ 11.  008 012108  	ldx	index
+ 12.  009 052107  	stx	position
+ 13.              
+ 14.  00A 002107  whileLoop:	lda	position
+ 15.  00B 200000  	cma#	0
+ 16.  00C 4C2017  	jle	sort
+ 17.  00D 012107  	ldx	position
+ 18.  00E 004100  	lda+	array-1
+ 19.  00F 202109  	cma	currVal
+ 20.  010 4C2017  	jle	sort
+ 21.  011 012107  	ldx	position
+ 22.  012 044101  	sta+	array
+ 23.  013 002107  	lda	position
+ 24.  014 140001  	sba#	1
+ 25.  015 042107  	sta	position
+ 26.  016 40200A  	jmp	whileLoop
+ 27.              
+ 28.  017 002109  sort:	lda	currVal
+ 29.  018 012107  	ldx	position
+ 30.  019 044101  	sta+	array
+ 31.  01A 002108  	lda	index
+ 32.  01B 100001  	ada#	1
+ 33.  01C 042108  	sta	index
+ 34.  01D 402002  	jmp	forLoop
+ 35.              
+ 36.  01E FFFFFF  end:	hlt
+ 37.              	.end
+ 38.              
+ 39.              	.equ	@, $100
+ 40.  100 000006  arraySize:	.word	6
+ 41.  101 000064  array:	.word	100
+ 42.  102 00004A  	.word 74
+ 43.  103 FFFF70  	.word -144
+ 44.  104 002726  	.word 10022
+ 45.  105 000291  	.word 657
+ 46.  106 FFFFDF  	.word -33
+ 47.  107 000000  position:	.word	0
+ 48.  108 000001  index:	.word	1
+ 49.  109 000000  currVal:	.word	0
+
+                     SYMBOL TABLE CONTENTS
+
+000101 = ARRAY           000100 = ARRAYSIZE       000109 = CURRVAL         
+00001E = END             000002 = FORLOOP         000108 = INDEX           
+000107 = POSITION        000017 = SORT            00000A = WHILELOOP       

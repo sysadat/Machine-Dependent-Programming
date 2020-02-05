@@ -1,0 +1,77 @@
+;Calling Program 	
+	.equ	@, $000
+	.equ	stack, $200
+	.equ	numRow, 2
+	.equ	numCol, 4
+	.equ	arraySize, numRow * numCol
+
+	lds#	stack
+	ldf#	$000
+	psh#	array
+	psh#	numRow
+	psh#	numCol
+	psh#	transArray
+	jsr	transpose
+	ads#	$004
+	jmp	end
+
+end:	hlt
+	.end
+;Sub-Routine
+	.equ	@, $020
+	.equ	oldArray, 5	
+	.equ	col, 4
+	.equ	row, 3
+	.equ	newArray, 2
+
+transpose:	pshf
+	tsf
+	pshx
+	lda#	$000
+	sta	j
+	lda#	$000
+	sta	i
+
+forLoop1:	lda	temp
+	cma !	row
+	jge	endTrans
+	lda	temp
+	sta	i
+
+forLoop2:	ldx	i
+	cmx#	arraySize	
+	jge	incTemp
+	lda	i		
+	lda& ! oldArray
+	ldx	j
+	sta& ! newArray
+	lda	i
+	ada ! row
+	sta	i
+	lda	j
+	ada#	$001
+	sta	j
+	jmp	forLoop2
+
+incTemp:	lda	temp
+	ada#	$001
+	sta	temp
+	jmp	forLoop1
+
+endTrans:	popx	
+	popf	
+	rtn		
+
+	.equ	@, $C00
+array:	.word	8
+	.word	9
+	.word	10
+	.word	11
+	.word	12
+	.word	13
+	.word	14
+	.word	15
+transArray:	.blkw	arraySize, -1
+i:	.word	0
+j:	.word	0
+temp:	.word	0

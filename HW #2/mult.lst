@@ -1,0 +1,55 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.  000 002100  	lda 	A
+  2.  001 200000  	cma# 	$000
+  3.  002 4D2008  	jgt 	start
+  4.  003 FFF020  	nega
+  5.  004 042100  	sta 	A
+  6.  005 002104  	lda 	ifNeg
+  7.  006 100001  	ada# 	$001
+  8.  007 042104  	sta 	ifNeg
+  9.              	
+ 10.              
+ 11.  008 002101  start:	lda 	B
+ 12.  009 200000  	cma# 	$000
+ 13.  00A 4D2008  	jgt 	start
+ 14.  00B FFF020  	nega
+ 15.  00C 042101  	sta 	B
+ 16.  00D 002104  	lda 	ifNeg
+ 17.  00E 100001  	ada# 	$001
+ 18.  00F 042104  	sta 	ifNeg
+ 19.  010 002103  	lda 	count
+ 20.              
+ 21.  011 202101  loop:	cma 	B
+ 22.  012 48201A  	jeq 	negLoop
+ 23.  013 002102  	lda 	answer
+ 24.  014 102100  	ada 	A
+ 25.  015 042102  	sta 	answer
+ 26.  016 002103  	lda 	count
+ 27.  017 100001  	ada# 	$001
+ 28.  018 042103  	sta 	count
+ 29.  019 402011  	jmp 	loop
+ 30.              
+ 31.  01A 002104  negLoop:	lda 	ifNeg
+ 32.  01B 200000  	cma# 	$000
+ 33.  01C 482022  	jeq 	end
+ 34.  01D 1C2104  	dec 	ifNeg
+ 35.  01E 002102  	LDA 	answer
+ 36.  01F FFF020  	NEGA
+ 37.  020 042102  	STA 	answer
+ 38.  021 40201A  	JMP 	negLoop
+ 39.              
+ 40.  022 FFFFFF  end:	hlt
+ 41.              
+ 42.              	.EQU @,$100
+ 43.  100 000005  A:	.word 5
+ 44.  101 FFFFFE  B:	.word -2
+ 45.  102 000000  answer:	.word 0
+ 46.  103 000000  count:	.word 0
+ 47.  104 000000  ifNeg:	.word 0	
+ 48.              	.end
+
+                     SYMBOL TABLE CONTENTS
+
+000100 = A               000102 = ANSWER          000101 = B               
+000103 = COUNT           000022 = END             000104 = IFNEG           
+000011 = LOOP            00001A = NEGLOOP         000008 = START           

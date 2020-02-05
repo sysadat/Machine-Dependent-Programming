@@ -1,0 +1,50 @@
+;Calling Program 
+	.equ  @,$000
+	.equ	stack, $100
+
+	lds#	stack
+	ldf#	$000
+	psh#	oldString
+	psh#	strLen	
+	psh#	newString
+	jsr	swapcase
+	ads#	$003
+end:	hlt
+	.end	
+;Swapcase Sub-Routine 
+	.equ  @,$020
+	.equ	strOld, 4
+	.equ	length, 3
+	.equ	strNew, 2
+
+swapcase:	pshf
+	tsf
+	ldx#	$000
+
+loop:	ldc* ! strOld
+	cma#	'a'
+	jlt	capitalize
+	cma#	'z'
+	jgt	capitalize
+	sba#	'a' - 'A'
+	stc* ! strNew
+	jmp	increment
+
+capitalize:	ldc* ! strOld
+	cma#	'A'
+	jlt	unchanged
+	cma#	'Z'
+	jgt	unchanged
+	ada#	'a' - 'A'
+
+unchanged:	stc* ! strNew
+	jmp	increment
+
+increment:	aoc ! length
+	jlt	loop
+	popf
+	rtn
+
+	.equ @, $200
+oldString:	.char 'lEArN pYtHOn iN 30 YeaRS!', strLen
+newString:	.blkw strLen, -1
